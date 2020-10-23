@@ -67,6 +67,7 @@
 @property (nonatomic, strong) PKPaymentAuthorizationViewController *viewController;
 @property (nonatomic, strong) JudoCompletionBlock completionBlock;
 @property (nonatomic) BOOL authorizationInitiated;
+@property (nonatomic) BOOL cancellationInitiated;
 @end
 
 @implementation JudoKit
@@ -649,8 +650,9 @@
 
 - (void)paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller {
     [controller dismissViewControllerAnimated:YES completion:nil];
-    if (!self.authorizationInitiated) {
+    if (!self.authorizationInitiated && !self.cancellationInitiated) {
         self.completionBlock(nil, [NSError judoUserDidCancelError]);
+        self.cancellationInitiated = true;
     }
 }
 
