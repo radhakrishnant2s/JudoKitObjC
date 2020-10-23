@@ -66,6 +66,7 @@
 @property (nonatomic, strong) ApplePayConfiguration *configuration;
 @property (nonatomic, strong) PKPaymentAuthorizationViewController *viewController;
 @property (nonatomic, strong) JudoCompletionBlock completionBlock;
+@property (nonatomic) BOOL authorizationInitiated;
 @end
 
 @implementation JudoKit
@@ -603,7 +604,7 @@
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller
                        didAuthorizePayment:(PKPayment *)payment
                                 completion:(void (^)(PKPaymentAuthorizationStatus))completion {
-
+    self.authorizationInitiated = true;
     JPTransaction *transaction;
 
     if (self.configuration.transactionType == TransactionTypePreAuth) {
@@ -648,8 +649,9 @@
 
 - (void)paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller {
     [controller dismissViewControllerAnimated:YES completion:nil];
-    self.completionBlock(nil, [NSError judoUserDidCancelError]);
-
+    if (!self.authorizationInitiated) {
+        self.completionBlock(nil, [NSError judoUserDidCancelError]);
+    }
 }
 
 @end
